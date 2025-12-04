@@ -3,6 +3,7 @@ x-nginx_environment: &nginx_environment
     - TLS_MODE
     - HTPASSWD_NODE
     - HTPASSWD
+    - SITE_HOST
 
 
 services:
