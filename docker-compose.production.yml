@@ -1,0 +1,10 @@
+services:
+  frontend:
+    image: "ghcr.io/${IMAGE_NAMESPACE}/docs-frontend:${TAG}"
+    restart: always
+
+  nginx:
+    image: "ghcr.io/${IMAGE_NAMESPACE}/docs-nginx:${TAG}"
+    ports:
+      - "80:80"
+    restart: always

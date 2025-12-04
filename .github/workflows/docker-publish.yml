@@ -1,0 +1,94 @@
+name: Build and push Docker images
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+jobs:
+  build-publish-deploy:
+    runs-on: ubuntu-latest
+    env:
+      DEFAULT_IMAGE_NAMESPACE: ${{ github.repository_owner }}
+      
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Compute namespace
+        id: compute_namespace
+        run: |
+          IMAGE_NAMESPACE="${{ secrets.IMAGE_NAMESPACE || env.DEFAULT_IMAGE_NAMESPACE }}"
+          echo "IMAGE_NAMESPACE=${IMAGE_NAMESPACE}" >> $GITHUB_ENV
+
+      - name: Gather commit metadata and compute TAG
+        id: compute_tag
+        run: |
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          BRANCH="${GITHUB_REF_NAME}"
+          TS=$(date -u +"%Y%m%d%H%M%S")
+          TAG="${TS}-${BRANCH}-${SHORT_SHA}"
+          echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_ENV
+          echo "BRANCH=${BRANCH}" >> $GITHUB_ENV
+          echo "TS=${TS}" >> $GITHUB_ENV
+          echo "TAG=${TAG}" >> $GITHUB_ENV
+          echo "Computed TAG=$TAG"
+
+
+      - name: Login to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build frontend image
+        run: |
+          docker build \
+          -f docker/frontend/Dockerfile \
+          -t ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-frontend:${TAG} \
+          .
+      - name: Push frontend image
+        run: |
+          docker push ghcr.io/${{ env.DEFAULT_IMAGE_NAMESPACE }}/docs-frontend:${TAG}
+
+
+      - name: Build nginx image
+        run: |
+          docker build \
+          -f docker/nginx/Dockerfile \
+          -t ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-nginx:${TAG} \
+          docker/nginx
+      - name: Push nginx image
+        run: |
+          docker push ghcr.io/${{ env.IMAGE_NAMESPACE }}/my-docs-nginx:${{ github.sha }}
+
+
+
+      # -------------------------------
+      # Deploy to remote host via SSH
+      # -------------------------------
+      - name: Remote deploy
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            export TAG="${{ env.TAG }}"
+            export IMAGE_NAMESPACE="${{ env.IMAGE_NAMESPACE }}"
+
+            docker login ghcr.io -u "${IMAGE_NAMESPACE}" -p "${{ secrets.GITHUB_TOKEN }}"
+
+            docker pull ghcr.io/${IMAGE_NAMESPACE}/docs-frontend:${TAG}
+            docker pull ghcr.io/${IMAGE_NAMESPACE}/docs-nginx:${TAG}
+
+            docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.production.yml \
+              up -d
