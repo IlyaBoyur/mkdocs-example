@@ -1,0 +1,32 @@
+resolver 127.0.0.11 valid=5s ipv6=off;
+
+map $server_port $x_forwarded_host {
+    default $host:$server_port;
+    80      $host;
+    443     $host;
+}
+
+server {
+  listen 80;
+  server_name _;
+
+  root /usr/share/nginx/html;
+  index index.html index.htm;
+
+  location / {
+    <% if [ "$HTPASSWD_NODE" != "off" ]; then -%>
+    auth_basic "Protected Docs";
+    auth_basic_user_file /etc/nginx/conf.d/.htpasswd;
+    <% fi; -%>
+
+    try_files $uri $uri/ /index.html;
+  }
+
+  # static file caching (optional)
+  location ~* \.(?:css|js|svg|ico|json)$ {
+    expires 7d;
+    add_header Cache-Control "public";
+  }
+}
+
+

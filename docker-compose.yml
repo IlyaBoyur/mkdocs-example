@@ -1,0 +1,35 @@
+x-nginx_environment: &nginx_environment
+  environment:
+    - TLS_MODE
+    - HTPASSWD_NODE
+    - HTPASSWD
+
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend/Dockerfile
+    image: my-docs-frontend:local
+    volumes:
+      - site-data:/srv/site
+    environment:
+      - GIT_COMMIT=${GIT_COMMIT:-local}
+    command: ["sleep", "infinity"]  # builder container: we will run build with docker-compose exec
+
+  nginx:
+    build:
+      context: docker/nginx
+      dockerfile: Dockerfile
+    image: my-docs-nginx:local
+    ports:
+      - "8080:80"
+    volumes:
+      - site-data:/usr/share/nginx/html:ro
+    depends_on:
+      - frontend
+    <<: *nginx_environment
+
+
+volumes:
+  site-data:

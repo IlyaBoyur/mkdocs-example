@@ -1,0 +1,15 @@
+site_name: My Docs Site
+site_description: 'Docs-as-code example'
+repo_name: <add your repo name>
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - New topic: new-topic.md
+markdown_extensions:
+  - admonition
+  - pymdownx.superfences
+plugins:
+  - search
+  - git-revision-date
