@@ -1,10 +1,17 @@
 services:
   frontend:
-    image: "ghcr.io/${IMAGE_NAMESPACE}/docs-frontend:${TAG}"
+    image: "ghcr.io/${IMAGE_NAMESPACE}/docs-frontend:${TAG:-latest}"
+    build:
+      context: .
+      cache_from: [ "${IMAGE_NAMESPACE}/backend:${CACHE_FROM_TAG:-latest}" ]
     restart: always
 
   nginx:
-    image: "ghcr.io/${IMAGE_NAMESPACE}/docs-nginx:${TAG}"
+    image: "ghcr.io/${IMAGE_NAMESPACE}/docs-nginx:${TAG:-latest}"
+    build:
+      context: ./docker/nginx
+      cache_from: [ "${IMAGE_NAMESPACE}/nginx:${CACHE_FROM_TAG:-latest}" ]
     ports:
       - "80:80"
+      - "443:443"
     restart: always
