@@ -14,7 +14,8 @@ jobs:
   build-publish:
     runs-on: ubuntu-latest
     env:
-      DEFAULT_IMAGE_NAMESPACE: ${{ toLower(github.repository_owner) }}
+      # normalize image namespace (owner) to lowercase
+      DEFAULT_IMAGE_NAMESPACE: $(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
       
     steps:
       - name: Checkout
