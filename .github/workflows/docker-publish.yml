@@ -68,6 +68,16 @@ jobs:
       - name: Push nginx image
         run: |
           docker push ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-nginx:${TAG}
+      
+      - name: Upload compose files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "docker-compose.yml,docker-compose.production.yml"
+          target: "/opt/docs-app"
 
 
   deploy:
@@ -90,6 +100,7 @@ jobs:
             docker pull ghcr.io/${IMAGE_NAMESPACE}/docs-frontend:${TAG}
             docker pull ghcr.io/${IMAGE_NAMESPACE}/docs-nginx:${TAG}
 
+            cd /opt/docs-app
             docker compose \
               -f docker-compose.yml \
               -f docker-compose.production.yml \
