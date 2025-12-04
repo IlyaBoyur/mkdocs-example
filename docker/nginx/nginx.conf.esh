@@ -6,9 +6,21 @@ map $server_port $x_forwarded_host {
     443     $host;
 }
 
+# Защита от других доменов
 server {
+  listen 80 default_server;
+  listen [::]:80 default_server;
+
+<% if [ "$TLS_MODE" != "off" ]; then -%>
+  return 301 https://<%= $SITE_HOST %>;
+<% else -%>
+  return 301 http://<%= $SITE_HOST %>;
+<% fi -%>
+}
+
+server {
+  server_name <%= $SITE_HOST %>;
   listen 80;
-  server_name _;
 
   root /usr/share/nginx/html;
   index index.html index.htm;
