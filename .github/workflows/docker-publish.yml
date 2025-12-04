@@ -77,7 +77,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           source: "docker-compose.yml,docker-compose.production.yml"
-          target: "/opt/docs-app"
+          target: "~/."
 
 
   deploy:
@@ -100,7 +100,6 @@ jobs:
             docker pull ghcr.io/${IMAGE_NAMESPACE}/docs-frontend:${TAG}
             docker pull ghcr.io/${IMAGE_NAMESPACE}/docs-nginx:${TAG}
 
-            mkdir -p /opt/docs-app && cd /opt/docs-app
             docker compose \
               -f docker-compose.yml \
               -f docker-compose.production.yml \
