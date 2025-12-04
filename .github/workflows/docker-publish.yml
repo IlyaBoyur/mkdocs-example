@@ -102,10 +102,14 @@ jobs:
           script: |
             docker login ghcr.io -u "${{ env.IMAGE_NAMESPACE }}" -p "${{ secrets.GITHUB_TOKEN }}"
 
-            docker pull ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-frontend:${{ env.TAG }}
-            docker pull ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-nginx:${{ env.TAG }}
+            IMAGE_NAMESPACE=${{ env.IMAGE_NAMESPACE }} TAG=${{ env.TAG }} \
+              docker compose \
+              -f docker-compose.yml \
+              -f docker-compose.production.yml \
+              pull
 
-            docker compose \
+            IMAGE_NAMESPACE=${{ env.IMAGE_NAMESPACE }} TAG=${{ env.TAG }} \
+              docker compose \
               -f docker-compose.yml \
               -f docker-compose.production.yml \
               up -d
