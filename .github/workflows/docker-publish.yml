@@ -13,6 +13,9 @@ permissions:
 jobs:
   build-publish:
     runs-on: ubuntu-latest
+    outputs:
+      IMAGE_NAMESPACE: ${{ steps.compute_namespace.outputs.IMAGE_NAMESPACE }}
+      TAG: ${{ steps.compute_tag.outputs.TAG }}
     env:
       # normalize image namespace (owner) to lowercase
       DEFAULT_IMAGE_NAMESPACE: $(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
@@ -26,6 +29,7 @@ jobs:
         run: |
           IMAGE_NAMESPACE="${{ secrets.IMAGE_NAMESPACE || env.DEFAULT_IMAGE_NAMESPACE }}"
           echo "IMAGE_NAMESPACE=${IMAGE_NAMESPACE}" >> $GITHUB_ENV
+          echo "IMAGE_NAMESPACE=${IMAGE_NAMESPACE}" >> $GITHUB_OUTPUT
 
       - name: Gather commit metadata and compute TAG
         id: compute_tag
@@ -39,6 +43,7 @@ jobs:
           echo "TS=${TS}" >> $GITHUB_ENV
           echo "TAG=${TAG}" >> $GITHUB_ENV
           echo "Computed TAG=$TAG"
+          echo "TAG=${TAG}" >> $GITHUB_OUTPUT
 
 
       - name: Login to GitHub Container Registry (GHCR)
@@ -83,6 +88,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build-publish
+    env:
+      TAG: "${{ needs.build-publish.outputs.TAG }}"
+      IMAGE_NAMESPACE: "${{ needs.build-publish.outputs.IMAGE_NAMESPACE }}"
     steps:
       - name: Deploy to remote host via SSH
         uses: appleboy/ssh-action@v1.2.0
@@ -92,9 +100,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            export TAG="${{ env.TAG }}"
-            export IMAGE_NAMESPACE="${{ env.IMAGE_NAMESPACE }}"
-
             docker login ghcr.io -u "${IMAGE_NAMESPACE}" -p "${{ secrets.GITHUB_TOKEN }}"
 
             docker pull ghcr.io/${IMAGE_NAMESPACE}/docs-frontend:${TAG}
