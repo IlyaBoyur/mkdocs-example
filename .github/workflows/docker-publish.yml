@@ -57,22 +57,22 @@ jobs:
         run: |
           docker build \
           -f docker/frontend/Dockerfile \
-          -t ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-frontend:${TAG} \
+          -t ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-frontend:${{ env.TAG }} \
           .
       - name: Push frontend image
         run: |
-          docker push ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-frontend:${TAG}
+          docker push ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-frontend:${{ env.TAG }}
 
 
       - name: Build nginx image
         run: |
           docker build \
           -f docker/nginx/Dockerfile \
-          -t ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-nginx:${TAG} \
+          -t ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-nginx:${{ env.TAG }} \
           docker/nginx
       - name: Push nginx image
         run: |
-          docker push ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-nginx:${TAG}
+          docker push ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-nginx:${{ env.TAG }}
       
       - name: Upload compose files
         uses: appleboy/scp-action@v1
@@ -100,10 +100,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            docker login ghcr.io -u "${IMAGE_NAMESPACE}" -p "${{ secrets.GITHUB_TOKEN }}"
+            docker login ghcr.io -u "${{ env.IMAGE_NAMESPACE }}" -p "${{ secrets.GITHUB_TOKEN }}"
 
-            docker pull ghcr.io/${IMAGE_NAMESPACE}/docs-frontend:${TAG}
-            docker pull ghcr.io/${IMAGE_NAMESPACE}/docs-nginx:${TAG}
+            docker pull ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-frontend:${{ env.TAG }}
+            docker pull ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-nginx:${{ env.TAG }}
 
             docker compose \
               -f docker-compose.yml \
