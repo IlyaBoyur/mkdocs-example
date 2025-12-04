@@ -70,7 +70,7 @@ jobs:
           docker push ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-nginx:${TAG}
       
       - name: Upload compose files
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -100,7 +100,7 @@ jobs:
             docker pull ghcr.io/${IMAGE_NAMESPACE}/docs-frontend:${TAG}
             docker pull ghcr.io/${IMAGE_NAMESPACE}/docs-nginx:${TAG}
 
-            cd /opt/docs-app
+            mkdir -p /opt/docs-app && cd /opt/docs-app
             docker compose \
               -f docker-compose.yml \
               -f docker-compose.production.yml \
