@@ -65,11 +65,6 @@ jobs:
 
 
       - name: Build nginx image
-        env:
-          TLS_MODE: ${{ secrets.TLS_MODE }}
-          HTPASSWD: ${{ secrets.HTPASSWD }}
-          HTPASSWD_NODE: ${{ secrets.HTPASSWD_NODE }}
-          SITE_HOST: ${{ secrets.SITE_HOST }}
         run: |
           docker build \
           -f docker/nginx/Dockerfile \
@@ -113,8 +108,16 @@ jobs:
               -f docker-compose.production.yml \
               pull
 
+            touch .env 
+            echo TLS_MODE=${{ secrets.TLS_MODE }} >> .env
+            echo HTPASSWD=${{ secrets.HTPASSWD }} >> .env
+            echo HTPASSWD_NODE=${{ secrets.HTPASSWD_NODE }} >> .env
+            echo SITE_HOST=${{ secrets.SITE_HOST }} >> .env
+            
             IMAGE_NAMESPACE=${{ env.IMAGE_NAMESPACE }} TAG=${{ env.TAG }} \
               docker compose \
               -f docker-compose.yml \
               -f docker-compose.production.yml \
               up -d
+
+            rm .env
