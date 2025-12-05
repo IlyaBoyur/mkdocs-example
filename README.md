@@ -77,3 +77,13 @@ TLS_MODE=on
 5. Run deployment once again, i.e. via dedicated `Run workflow` button in GitHub action
 
 Enjoy your docs with HTTPS!
+
+
+# Contributions
+
+#### Public pull requests are highly recomended!  
+#### If you face any problem with usage - feel free to file an issue. 
+
+# Author
+
+[Ilya Boyur](https://github.com/IlyaBoyur)
