@@ -17,8 +17,18 @@ services:
     image: "ghcr.io/${IMAGE_NAMESPACE}/docs-nginx:${TAG:-latest}"
     build:
       cache_from: [ "ghcr.io/${IMAGE_NAMESPACE}/nginx:${CACHE_FROM_TAG:-latest}" ]
+    restart: always
+    <<: *nginx_environment
+    volumes:
+      - local_static:/var/www/local_static/
+      - acme.sh:/app/acme.sh:delegated
+      - certs:/etc/nginx/certs
     ports:
       - "80:80"
       - "443:443"
-    restart: always
-    <<: *nginx_environment
+
+
+volumes:
+  local_static:
+  acme.sh:
+  certs:

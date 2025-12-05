@@ -25,7 +25,7 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - site-data:/usr/share/nginx/html:ro
+      - site-data:/var/www/local_static/:ro
     depends_on:
       - frontend
     <<: *nginx_environment
