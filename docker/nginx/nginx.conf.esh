@@ -94,6 +94,7 @@ server {
 
   # static file caching (optional)
   location ~* \.(?:css|js|svg|ico|json)$ {
+    root /var/www/local_static/;
     expires 7d;
     add_header Cache-Control "public";
   }
