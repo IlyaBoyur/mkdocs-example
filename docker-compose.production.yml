@@ -1,17 +1,24 @@
+x-nginx_environment: &nginx_environment
+  environment:
+    - ENVIRONMENT=production
+    - TLS_MODE
+    - HTPASSWD_NODE
+    - HTPASSWD
+    - SITE_HOST
+
 services:
   frontend:
     image: "ghcr.io/${IMAGE_NAMESPACE}/docs-frontend:${TAG:-latest}"
     build:
-      context: .
-      cache_from: [ "${IMAGE_NAMESPACE}/backend:${CACHE_FROM_TAG:-latest}" ]
+      cache_from: [ "ghcr.io/${IMAGE_NAMESPACE}/backend:${CACHE_FROM_TAG:-latest}" ]
     restart: always
 
   nginx:
     image: "ghcr.io/${IMAGE_NAMESPACE}/docs-nginx:${TAG:-latest}"
     build:
-      context: ./docker/nginx
-      cache_from: [ "${IMAGE_NAMESPACE}/nginx:${CACHE_FROM_TAG:-latest}" ]
+      cache_from: [ "ghcr.io/${IMAGE_NAMESPACE}/nginx:${CACHE_FROM_TAG:-latest}" ]
     ports:
       - "80:80"
       - "443:443"
     restart: always
+    <<: *nginx_environment

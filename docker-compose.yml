@@ -1,9 +1,10 @@
 x-nginx_environment: &nginx_environment
   environment:
-    - TLS_MODE
+    - ENVIRONMENT=development
+    - TLS_MODE=${TLS_MODE:-off}
     - HTPASSWD_NODE
     - HTPASSWD
-    - SITE_HOST
+    - SITE_HOST=localhost
 
 
 services:
@@ -14,8 +15,6 @@ services:
     image: my-docs-frontend:local
     volumes:
       - site-data:/srv/site
-    environment:
-      - GIT_COMMIT=${GIT_COMMIT:-local}
     command: ["sleep", "infinity"]  # builder container: we will run build with docker-compose exec
 
   nginx:
