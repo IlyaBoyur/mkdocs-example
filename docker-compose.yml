@@ -10,17 +10,15 @@ x-nginx_environment: &nginx_environment
 services:
   frontend:
     build:
-      context: .
-      dockerfile: docker/frontend/Dockerfile
+      context: ./frontend
     image: my-docs-frontend:local
     volumes:
       - site-data:/srv/site
-    command: ["sleep", "infinity"]  # builder container: we will run build with docker-compose exec
+    command: ["sleep", "infinity"]  # builder container: build with docker compose exec
 
   nginx:
     build:
-      context: docker/nginx
-      dockerfile: Dockerfile
+      context: ./nginx
     image: my-docs-nginx:local
     ports:
       - "8080:80"

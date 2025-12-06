@@ -1,11 +1,10 @@
 # builder stage - creates static site
-FROM python:3.13-slim as builder
+FROM python:3.13-slim AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    git \
-  && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y build-essential git && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -13,9 +12,9 @@ WORKDIR /app
 COPY . /app
 
 # install mkdocs and material theme
-RUN python -m pip install --upgrade pip
-RUN pip install -r requirements.txt
-
+RUN python -m pip install --upgrade pip && \
+    pip install -r requirements.txt
+RUN ls -la
 # build site into /srv/site
 RUN mkdocs build --site-dir /srv/site
 
@@ -23,6 +22,5 @@ RUN mkdocs build --site-dir /srv/site
 FROM alpine:3.18
 RUN mkdir -p /srv/site
 COPY --from=builder /srv/site /srv/site
-# expose the built site in /srv/site for volume usage
-VOLUME ["/srv/site"]
+
 CMD ["sleep", "infinity"]

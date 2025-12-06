@@ -3,6 +3,7 @@
 ## local development
 ```bash
 pipx install mkdocs
+cd frontend
 mkdocs build
 mkdocs serve --dev-addr localhost:8080
 ```
