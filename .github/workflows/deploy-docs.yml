@@ -39,12 +39,14 @@ jobs:
           pip install -r requirements.txt
 
       - name: Build site
-        run: mkdocs build -d site
+        run: |
+          cd frontend
+          mkdocs build -d site
 
       - name: Upload build artifact for GitHub Pages
         uses: actions/upload-pages-artifact@v4
         with:
-          path: site
+          path: frontend/site
 
   deploy:
     needs: build

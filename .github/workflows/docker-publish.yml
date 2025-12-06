@@ -55,8 +55,8 @@ jobs:
 
       - name: Build frontend image
         run: |
+          cd frontend
           docker build \
-          -f docker/frontend/Dockerfile \
           -t ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-frontend:${{ env.TAG }} \
           .
       - name: Push frontend image
@@ -66,10 +66,10 @@ jobs:
 
       - name: Build nginx image
         run: |
+          cd nginx
           docker build \
-          -f docker/nginx/Dockerfile \
           -t ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-nginx:${{ env.TAG }} \
-          docker/nginx
+          .
       - name: Push nginx image
         run: |
           docker push ghcr.io/${{ env.IMAGE_NAMESPACE }}/docs-nginx:${{ env.TAG }}
