@@ -3,6 +3,7 @@
 ## local development
 ```bash
 pipx install mkdocs
+pipx inject mkdocs mkdocs-material mkdocs-mermaid2-plugin mkdocs-awesome-pages-plugin
 cd frontend
 mkdocs build
 mkdocs serve --dev-addr localhost:8080
