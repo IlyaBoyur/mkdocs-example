@@ -14,7 +14,7 @@ COPY . /app
 # install mkdocs and material theme
 RUN python -m pip install --upgrade pip && \
     pip install -r requirements.txt
-RUN ls -la
+
 # build site into /srv/site
 RUN mkdocs build --site-dir /srv/site
 
